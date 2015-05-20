@@ -1,0 +1,9 @@
+E:\work\csharp\WebSpider\WebSpider\bin\Debug\WebSpider.exe.config
+E:\work\csharp\WebSpider\WebSpider\bin\Debug\WebSpider.exe
+E:\work\csharp\WebSpider\WebSpider\bin\Debug\WebSpider.pdb
+E:\work\csharp\WebSpider\WebSpider\obj\Debug\WebSpider.csprojResolveAssemblyReference.cache
+E:\work\csharp\WebSpider\WebSpider\obj\Debug\WebSpider.Properties.Resources.resources
+E:\work\csharp\WebSpider\WebSpider\obj\Debug\WebSpider.csproj.GenerateResource.Cache
+E:\work\csharp\WebSpider\WebSpider\obj\Debug\WebSpider.exe
+E:\work\csharp\WebSpider\WebSpider\obj\Debug\WebSpider.pdb
+E:\work\csharp\WebSpider\WebSpider\obj\Debug\WebSpider.formMain.resources
