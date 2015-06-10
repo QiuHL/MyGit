@@ -7,3 +7,12 @@ E:\work\csharp\WebSpider\WebSpider\obj\Debug\WebSpider.csproj.GenerateResource.C
 E:\work\csharp\WebSpider\WebSpider\obj\Debug\WebSpider.exe
 E:\work\csharp\WebSpider\WebSpider\obj\Debug\WebSpider.pdb
 E:\work\csharp\WebSpider\WebSpider\obj\Debug\WebSpider.formMain.resources
+E:\GitHub\MyGit\csharp\WebSpider\WebSpider\bin\Debug\WebSpider.exe.config
+E:\GitHub\MyGit\csharp\WebSpider\WebSpider\obj\Debug\WebSpider.exe
+E:\GitHub\MyGit\csharp\WebSpider\WebSpider\obj\Debug\WebSpider.pdb
+E:\GitHub\MyGit\csharp\WebSpider\WebSpider\bin\Debug\WebSpider.exe
+E:\GitHub\MyGit\csharp\WebSpider\WebSpider\bin\Debug\WebSpider.pdb
+E:\GitHub\MyGit\csharp\WebSpider\WebSpider\obj\Debug\WebSpider.csprojResolveAssemblyReference.cache
+E:\GitHub\MyGit\csharp\WebSpider\WebSpider\obj\Debug\WebSpider.formMain.resources
+E:\GitHub\MyGit\csharp\WebSpider\WebSpider\obj\Debug\WebSpider.Properties.Resources.resources
+E:\GitHub\MyGit\csharp\WebSpider\WebSpider\obj\Debug\WebSpider.csproj.GenerateResource.Cache

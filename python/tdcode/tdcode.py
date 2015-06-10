@@ -4,7 +4,7 @@ import urllib
 import urllib2
 
 def main():
-	params = {"text":"夏细艺"}
+	params = {"text":"mh"}
 	s = urllib.urlencode(params)
 	url = "http://qr.liantu.com/api.php?text="+s
 	print(url)
