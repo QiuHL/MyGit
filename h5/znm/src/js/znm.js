@@ -13,7 +13,7 @@ var mResources = [
 ];
 
 var mImgDataList=[];//下载的图片数据
-var mBitmapData = [];//图片数据实例
+var mBitmapData;//图片数据实例
 
 var mMapKey; //棋盘所有格子的图片编号
 var mMapImage; //棋盘所有格子的图片实例
@@ -22,6 +22,7 @@ var mLoadingLayer; //加载进度条
 var mBackLayer; //背景层
 var mImgLayer; //棋盘层
 var mInfoLayer; //信息层
+var mSelectedGif; //选中框图片数据实例
 
 var mTargetObj = {
     "key":0, //目标图片编号
@@ -35,6 +36,7 @@ var mRow = 0; //全局变量 列数
 var mSelected = {};
 
 function main() {
+    console.log("lufylegend");
     LGlobal.align = LStageAlign.BOTTOM_MIDDLE;
     LGlobal.stageScale = LStageScaleMode.SHOW_ALL;
     LSystem.screen(LStage.FULL_SCREEN);
@@ -49,7 +51,6 @@ function main() {
     mImgLayer = new LSprite();
     mImgLayer.y = 50;
     mBackLayer.addChild(mImgLayer);
-
 
     /**
      * 加载资源
@@ -72,8 +73,12 @@ function main() {
 
 //初始化图片数据
 function initImage() {
+    mBitmapData = new Array();
     for (var i = 0; i < mImgDataList.length; i++) {
-        mBitmapData[i] = new LBitmapData(mImgDataList[i]);
+        console.log("image data:", mImgDataList[i]);
+        var key = mImgDataList[i].name;
+        console.log("image key:", key);
+        mBitmapData[key] = new LBitmapData(mImgDataList[i]);
     }
 }
 
@@ -222,8 +227,17 @@ function imgClickHandler(event) {
         var selected = mSelected.push(index);
         if (selected == mTargetObj.count) {
             //已全部选出
+            console.log("guanqia finish");
+            return;
         }
     }
+
+    //显示选中效果
+    var selectedGif = new LBitmap(mSelectedGif);
+    selectedGif.x = pos.x;
+    selectedGif.y = pos.y;
+    console.log("show selected:", pos.x, pos.y);
+    mImgLayer.addChild(selectedGif);
 }
 
 //根据index转换成pos
