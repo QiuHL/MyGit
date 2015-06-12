@@ -12,6 +12,10 @@ var mResources = [
     {"name": "6", "path":"images/6.gif"},
 ];
 
+var mOtherRes = [
+    {"name": "selected", "path":"images/selected.gif"},
+];
+
 var mImgDataList=[];//下载的图片数据
 var mBitmapData;//图片数据实例
 
@@ -22,7 +26,9 @@ var mLoadingLayer; //加载进度条
 var mBackLayer; //背景层
 var mImgLayer; //棋盘层
 var mInfoLayer; //信息层
-var mSelectedGif; //选中框图片数据实例
+var mInfoBitmap; //目标图片实例
+var mInfoText; //提示信息1
+var mInfoLeft; //提示信息2
 
 var mTargetObj = {
     "key":0, //目标图片编号
@@ -33,7 +39,7 @@ var mTargetObj = {
 var mGuanQia = 0; //全局变量 当前关卡编号
 var mCell = 0; //全局变量 行数
 var mRow = 0; //全局变量 列数
-var mSelected = {};
+var mSelected = [];
 
 function main() {
     console.log("lufylegend");
@@ -56,7 +62,7 @@ function main() {
      * 加载资源
      */
     LLoadManage.load(
-        mResources,
+        mResources.concat(mOtherRes),
         function(press){
             mLoadingLayer.setProgress(press);
         },
@@ -74,11 +80,10 @@ function main() {
 //初始化图片数据
 function initImage() {
     mBitmapData = new Array();
-    for (var i = 0; i < mImgDataList.length; i++) {
-        console.log("image data:", mImgDataList[i]);
-        var key = mImgDataList[i].name;
+    console.log("image data:", mImgDataList);
+    for (var key in mImgDataList) {
         console.log("image key:", key);
-        mBitmapData[key] = new LBitmapData(mImgDataList[i]);
+        mBitmapData[key] = new LBitmapData(mImgDataList[key]);
     }
 }
 
@@ -90,7 +95,7 @@ function initMap(guanQia) {
     mGuanQia = guanQia;
     mCell = cell;
     mRow = row;
-    mSelected = {};
+    mSelected = new Array();
 
     mMapKey = new Array();
     for (var i = 0; i < cell; i++) {
@@ -107,13 +112,18 @@ function initMap(guanQia) {
     mTargetObj.points  = new Array();
 
     mInfoLayer.removeAllChild();
-    var infoText = new LTextField();
-    infoText.text = "寻找 " + targetAmount + " 个";
-    infoText.y = 10;
-    mInfoLayer.addChild(infoText);
-    var targetBitmap = new LBitmap(mBitmapData[targetKey]);
-    targetBitmap.x = 100;
-    mInfoLayer.addChild(targetBitmap);
+    mInfoText = new LTextField();
+    mInfoText.text = "寻找 " + targetAmount + " 个";
+    mInfoText.y = 10;
+    mInfoLayer.addChild(mInfoText);
+    mInfoBitmap = new LBitmap(mBitmapData[targetKey]);
+    mInfoBitmap.x = 100;
+    mInfoLayer.addChild(mInfoBitmap);
+    mInfoLeft = new LTextField();
+    mInfoLeft.text = "剩余 " + targetAmount + " 个";
+    mInfoLeft.x = 160;
+    mInfoLeft.y = 10;
+    mInfoLayer.addChild(mInfoLeft);
 
     var genFinish = false;
     var points = 0;
@@ -214,35 +224,42 @@ function genOtherKey(targetKey) {
 //图片点击
 function imgClickHandler(event) {
     var index = event.clickTarget.index;
-    console.log(index);
+    console.log(index, mSelected);
     //判断是否已点击过
     for (var i = 0; i < mSelected.length; i++) {
         if (index == mSelected[i]) {
+            console.log("clicked");
             return;
         }
     }
 
     var pos = index2pos(index);
-    if (isPosExists(pos.x, pos.y)) {
+    var x = pos[0];
+    var y = pos[1];
+    if (isPosExists(x, y)) {
+        //显示选中效果
+        var selectedGif = new LBitmap(mBitmapData["selected"]);
+        selectedGif.x = x * 45;
+        selectedGif.y = y * 45;
+        console.log("show selected:", x, y);
+        mImgLayer.addChild(selectedGif);
+
         var selected = mSelected.push(index);
+        var leftAmount = mTargetObj.count - selected;
+        console.log("selected push", selected, mTargetObj.count, leftAmount);
+        mInfoLeft.text = "剩余 " + leftAmount + " 个";
         if (selected == mTargetObj.count) {
             //已全部选出
             console.log("guanqia finish");
             return;
         }
     }
-
-    //显示选中效果
-    var selectedGif = new LBitmap(mSelectedGif);
-    selectedGif.x = pos.x;
-    selectedGif.y = pos.y;
-    console.log("show selected:", pos.x, pos.y);
-    mImgLayer.addChild(selectedGif);
 }
 
 //根据index转换成pos
 function index2pos(index) {
     var x = index % mRow;
     var y = (index - x) / mRow;
+    console.log("index2pos", index, mRow, x, y);
     return [x, y];
 }
