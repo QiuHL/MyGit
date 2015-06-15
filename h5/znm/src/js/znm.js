@@ -3,43 +3,48 @@
  */
 
 var mResources = [
-    {"name": "0", "path":"images/0.gif"},
-    {"name": "1", "path":"images/1.gif"},
-    {"name": "2", "path":"images/2.gif"},
-    {"name": "3", "path":"images/3.gif"},
-    {"name": "4", "path":"images/4.gif"},
-    {"name": "5", "path":"images/5.gif"},
-    {"name": "6", "path":"images/6.gif"},
-];
+        {"name": "0", "path":"images/0.gif"},
+        {"name": "1", "path":"images/1.gif"},
+        {"name": "2", "path":"images/2.gif"},
+        {"name": "3", "path":"images/3.gif"},
+        {"name": "4", "path":"images/4.gif"},
+        {"name": "5", "path":"images/5.gif"},
+        {"name": "6", "path":"images/6.gif"},
+    ],
 
-var mOtherRes = [
-    {"name": "selected", "path":"images/selected.gif"},
-];
+    mOtherRes = [
+        {"name": "selected", "path":"images/selected.gif"},
+    ],
 
-var mImgDataList=[];//下载的图片数据
-var mBitmapData;//图片数据实例
+    mImgDataList=[],//下载的图片数据
+    mBitmapData,//图片数据实例
 
-var mMapKey; //棋盘所有格子的图片编号
-var mMapImage; //棋盘所有格子的图片实例
+    mMapKey, //棋盘所有格子的图片编号
+    mMapImage, //棋盘所有格子的图片实例
 
-var mLoadingLayer; //加载进度条
-var mBackLayer; //背景层
-var mImgLayer; //棋盘层
-var mInfoLayer; //信息层
-var mInfoBitmap; //目标图片实例
-var mInfoText; //提示信息1
-var mInfoLeft; //提示信息2
+    mLoadingLayer, //加载进度条
+    mBackLayer, //背景层
+    mImgLayer, //棋盘层
+    mInfoLayer, //信息层
+    mAlertLayer, //提示层
+    mInfoBitmap, //目标图片实例
+    mInfoText, //提示信息1
+    mInfoLeft, //提示信息2
+    mInfoTime, //倒计时时间显示
+    mCDTime, //倒计时时间
+    mCDHandler, //倒计时句柄
+    mPauseButton, //暂停按钮
 
-var mTargetObj = {
-    "key":0, //目标图片编号
-    "count":0, //目标数量
-    "points": [], //目标坐标集合
-};
+    mTargetObj = {
+        "key":0, //目标图片编号
+        "count":0, //目标数量
+        "points": [], //目标坐标集合
+    },
 
-var mGuanQia = 0; //全局变量 当前关卡编号
-var mCell = 0; //全局变量 行数
-var mRow = 0; //全局变量 列数
-var mSelected = [];
+    mGuanQia = 0, //全局变量 当前关卡编号
+    mCell = 0, //全局变量 行数
+    mRow = 0, //全局变量 列数
+    mSelected = [];
 
 function main() {
     console.log("lufylegend");
@@ -89,8 +94,12 @@ function initImage() {
 
 //初始化棋盘
 function initMap(guanQia) {
-    var cell = 6;
-    var row = 6;
+    var cell = 6, row = 6,
+        i, j,
+        targetKey, targetAmount,
+        genFinish, points, point,
+        x, y,
+        otherKey;
 
     mGuanQia = guanQia;
     mCell = cell;
@@ -98,15 +107,15 @@ function initMap(guanQia) {
     mSelected = new Array();
 
     mMapKey = new Array();
-    for (var i = 0; i < cell; i++) {
+    for (i = 0; i < cell; i++) {
         mMapKey[i] = new Array();
-        for (var j = 0; j < row; j++) {
+        for (j = 0; j < row; j++) {
             mMapKey[i][j] = -1;
         }
     }
 
-    var targetKey = genTargetKey();
-    var targetAmount = Math.ceil(Math.random() * 5 + 1);
+    targetKey = genTargetKey();
+    targetAmount = Math.ceil(Math.random() * 5 + 1);
     mTargetObj.key = targetKey;
     mTargetObj.count = targetAmount;
     mTargetObj.points  = new Array();
@@ -117,20 +126,27 @@ function initMap(guanQia) {
     mInfoText.y = 10;
     mInfoLayer.addChild(mInfoText);
     mInfoBitmap = new LBitmap(mBitmapData[targetKey]);
-    mInfoBitmap.x = 100;
+    mInfoBitmap.x = 70;
     mInfoLayer.addChild(mInfoBitmap);
     mInfoLeft = new LTextField();
     mInfoLeft.text = "剩余 " + targetAmount + " 个";
-    mInfoLeft.x = 160;
+    mInfoLeft.x = 120;
     mInfoLeft.y = 10;
     mInfoLayer.addChild(mInfoLeft);
+    mInfoTime = new LTextField();
+    mInfoTime.x = 200;
+    mInfoTime.y = 10;
+    mInfoLayer.addChild(mInfoTime);
+    mPauseButton = new LButton();
+    mPauseButton.addEventListener(LMouseEvent.MOUSE_DOWN, pauseClickHandler);
+    mInfoLayer.addChild(mPauseButton);
 
-    var genFinish = false;
-    var points = 0;
+    genFinish = false;
+    points = 0;
     while (!genFinish) {
-        var point = genPos(cell, row);
-        var x = point[0];
-        var y = point[1];
+        point = genPos(cell, row);
+        x = point[0];
+        y = point[1];
         if (!isPosExists(x, y)) {
             mTargetObj.points[points] = point;
             mMapKey[x][y] = targetKey;
@@ -143,10 +159,10 @@ function initMap(guanQia) {
     console.log("gen map finish! targetKey=%d, targetAmount=%d, ", targetKey, targetAmount);
 
     //生成非目标数据
-    for (var i = 0; i < cell; i++) {
-        for (var j = 0; j < row; j++) {
+    for (i = 0; i < cell; i++) {
+        for (j = 0; j < row; j++) {
             if (!isPosExists(i, j)) {
-                var otherKey = genOtherKey(targetKey);
+                otherKey = genOtherKey(targetKey);
                 mMapKey[i][j] = otherKey;
             }
         }
@@ -154,6 +170,9 @@ function initMap(guanQia) {
     console.log("gen finish");
 
     fillMap(cell, row);
+
+    mCDTime = 500;
+    mCDHandler = setInterval("countDown(true)", 10);
 }
 
 //删除棋盘内图片控件
@@ -165,9 +184,12 @@ function clearMapImage() {
 //填充棋盘
 function fillMap(cell, row) {
     clearMapImage();
-    for (var i = 0; i < cell; i++) {
-        for (var j = 0; j < row; j++) {
-            var key = mMapKey[i][j];
+    var i, j,
+        key,
+        fileName, bitmap, bitmapButton;
+    for (i = 0; i < cell; i++) {
+        for (j = 0; j < row; j++) {
+            key = mMapKey[i][j];
             if (key != mTargetObj.key) {
                 //console.log("other key", key);
                 //continue;
@@ -175,11 +197,11 @@ function fillMap(cell, row) {
             else {
                 //console.log("target key", key);
             }
-            var fileName = "images/" + key + ".gif";
-            var bitmap = new LBitmap(mBitmapData[key]);
+            fileName = "images/" + key + ".gif";
+            bitmap = new LBitmap(mBitmapData[key]);
             bitmap.x = i * 45;
             bitmap.y = j * 45;
-            var bitmapButton = new LButton(bitmap, bitmap);
+            bitmapButton = new LButton(bitmap, bitmap);
             bitmapButton.index = j * row + i;
             bitmapButton.addEventListener(LMouseEvent.MOUSE_DOWN, imgClickHandler);
             mImgLayer.addChild(bitmapButton);
@@ -195,15 +217,17 @@ function genTargetKey() {
 
 //随机生成目标坐标
 function genPos(cell, row) {
-    var x = Math.floor(Math.random() * cell);
-    var y = Math.floor(Math.random() * row);
+    var x, y;
+    x = Math.floor(Math.random() * cell);
+    y = Math.floor(Math.random() * row);
     return [x, y];
 }
 
 //目标坐标是否已存在
 function isPosExists(x, y) {
-    for (var i = 0; i < mTargetObj.points.length; i++) {
-        var pos = mTargetObj.points[i];
+    var i, pos;
+    for (i = 0; i < mTargetObj.points.length; i++) {
+        pos = mTargetObj.points[i];
         if ((pos[0] == x) && (pos[1] == y)) {
             return true;
         }
@@ -213,8 +237,8 @@ function isPosExists(x, y) {
 
 //生成其它坐标
 function genOtherKey(targetKey) {
-    var resources = mResources.length;
-    var otherKey = Math.floor(Math.random() * resources);
+    var resources = mResources.length,
+        otherKey = Math.floor(Math.random() * resources);
     while (otherKey == targetKey) {
         otherKey = Math.floor(Math.random() * resources);
     }
@@ -223,29 +247,32 @@ function genOtherKey(targetKey) {
 
 //图片点击
 function imgClickHandler(event) {
-    var index = event.clickTarget.index;
+    var index = event.clickTarget.index,
+        i, pos, x, y,
+        selectedGif, selected,
+        leftAmount;
     console.log(index, mSelected);
     //判断是否已点击过
-    for (var i = 0; i < mSelected.length; i++) {
+    for (i = 0; i < mSelected.length; i++) {
         if (index == mSelected[i]) {
             console.log("clicked");
             return;
         }
     }
 
-    var pos = index2pos(index);
-    var x = pos[0];
-    var y = pos[1];
+    pos = index2pos(index);
+    x = pos[0];
+    y = pos[1];
     if (isPosExists(x, y)) {
         //显示选中效果
-        var selectedGif = new LBitmap(mBitmapData["selected"]);
+        selectedGif = new LBitmap(mBitmapData["selected"]);
         selectedGif.x = x * 45;
         selectedGif.y = y * 45;
         console.log("show selected:", x, y);
         mImgLayer.addChild(selectedGif);
 
-        var selected = mSelected.push(index);
-        var leftAmount = mTargetObj.count - selected;
+        selected = mSelected.push(index);
+        leftAmount = mTargetObj.count - selected;
         console.log("selected push", selected, mTargetObj.count, leftAmount);
         mInfoLeft.text = "剩余 " + leftAmount + " 个";
         if (selected == mTargetObj.count) {
@@ -258,8 +285,31 @@ function imgClickHandler(event) {
 
 //根据index转换成pos
 function index2pos(index) {
-    var x = index % mRow;
-    var y = (index - x) / mRow;
+    var x = index % mRow,
+        y = (index - x) / mRow;
     console.log("index2pos", index, mRow, x, y);
     return [x, y];
+}
+
+//倒计时
+function countDown(isBegin) {
+    var sec, milSec;
+    console.log("countdown", mCDTime);
+    if (isBegin) {
+        mCDTime = mCDTime - 1;
+        if (mCDTime <= 0) {
+            countDown(false);
+        }
+    }
+    else {
+        clearInterval(mCDHandler);
+    }
+    sec = Math.floor(mCDTime / 100);
+    milSec = (mCDTime - sec * 100);
+    mInfoTime.text = "剩余：" + sec + "\'" + milSec;
+}
+
+function pauseClickHandler(event) {
+    //var alertView = AlertView.createNew();
+    //mBackLayer.addChild(alertView);
 }
