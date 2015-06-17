@@ -14,6 +14,7 @@ var mResources = [
 
     mOtherRes = [
         {"name": "selected", "path":"images/selected.gif"},
+        {"name": "okbutton", "path":"images/ok_button.png"},
     ],
 
     mImgDataList=[],//下载的图片数据
@@ -137,7 +138,7 @@ function initMap(guanQia) {
     mInfoTime.x = 200;
     mInfoTime.y = 10;
     mInfoLayer.addChild(mInfoTime);
-    mPauseButton = new LButton();
+    mPauseButton = mhh5.ImgButton.createNew(mImgDataList["okbutton"]);
     mPauseButton.addEventListener(LMouseEvent.MOUSE_DOWN, pauseClickHandler);
     mInfoLayer.addChild(mPauseButton);
 
@@ -294,7 +295,7 @@ function index2pos(index) {
 //倒计时
 function countDown(isBegin) {
     var sec, milSec;
-    console.log("countdown", mCDTime);
+    //console.log("countdown", mCDTime);
     if (isBegin) {
         mCDTime = mCDTime - 1;
         if (mCDTime <= 0) {
@@ -310,6 +311,6 @@ function countDown(isBegin) {
 }
 
 function pauseClickHandler(event) {
-    //var alertView = AlertView.createNew();
-    //mBackLayer.addChild(alertView);
+    var alertView = mhh5.AlertView.createNew();
+    mBackLayer.addChild(alertView);
 }
