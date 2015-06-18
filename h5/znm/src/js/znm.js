@@ -313,4 +313,5 @@ function countDown(isBegin) {
 function pauseClickHandler(event) {
     var alertView = mhh5.AlertView.createNew();
     mBackLayer.addChild(alertView);
+    alert("alert");
 }
